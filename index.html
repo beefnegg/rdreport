@@ -662,6 +662,14 @@
     function openModal(r) {
       const wrap = document.getElementById('detail-body');
       wrap.innerHTML = '';
+      const status = rowStatus(r);
+      const badgeHtml = status === 'aktif'
+        ? '<span class="badge badge-aktif"><span class="dot active"></span>Aktif</span>'
+        : '<span class="badge badge-tidak-aktif"><span class="dot closed"></span>Tidak Aktif</span>';
+      const statusCard = document.createElement('div');
+      statusCard.className = 'modal-item';
+      statusCard.innerHTML = '<div class="modal-key">Status</div><div class="modal-val">' + badgeHtml + '</div>';
+      wrap.appendChild(statusCard);
       headers.forEach(h => {
         const raw = r[h];
         if (raw == null) return;
