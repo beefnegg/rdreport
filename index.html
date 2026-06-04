@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard RD Erlin</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      color: #e2e4ff;
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(99,105,245,0.18), transparent),
+                  radial-gradient(900px 600px at 85% 30%, rgba(120,90,255,0.18), transparent),
+                  linear-gradient(135deg, #0d0f18 0%, #131529 50%, #0d0f18 100%);
+      will-change: transform;
+    }
+
+    header {
+      padding: 1.6rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: rgba(18, 22, 36, 0.92);
+      backdrop-filter: blur(20px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .brand h1 { font-size: 1.3rem; font-weight: 800; }
+    .brand p { color: #7f8bb8; font-size: 0.85rem; margin-top: 0.2rem; }
+    .last-update { color: #7f8bb8; font-size: 0.85rem; display: inline-flex; gap: 0.5rem; align-items: center; }
+    .last-update i { color: #34d399; }
+
+    .shell { max-width: 1280px; margin: 0 auto; padding: 1.4rem 2rem 3rem; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .toolbar h2 { font-size: 1.25rem; font-weight: 700; }
+
+    .search { width: 260px; padding: 0.65rem 1rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e2e4ff; outline: none; }
+    .search:focus { border-color: rgba(99, 102, 241, 0.6); }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.2rem; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(18px); border-radius: 1.5rem; padding: 1.2rem; }
+    .card .label { font-size: 0.75rem; color: #7f8bb8; text-transform: uppercase; letter-spacing: 0.08em; }
+    .card .value { font-size: 1.6rem; font-weight: 800; margin-top: 0.25rem; }
+
+    .panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(18px); border-radius: 1.5rem; overflow: hidden; }
+    .panel-head { padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .panel-head h3 { font-size: 1.1rem; font-weight: 700; }
+
+    .legend { display: inline-flex; gap: 0.6rem; align-items: center; }
+    .legend span { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #c8cce0; }
+    .dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; }
+    .dot.active { background: #34d399; }
+    .dot.closed { background: #f87171; }
+
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    thead th { padding: 0.9rem 1rem; font-size: 0.75rem; color: #7f8bb8; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; background: rgba(15, 18, 28, 0.92); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    tbody td { padding: 0.85rem 1rem; font-size: 0.92rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    tbody tr:hover { background: rgba(255,255,255,0.05); }
+
+    .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .badge-aktif { background: rgba(52, 211, 153, 0.14); color: #34d399; }
+    .badge-tidak-aktif { background: rgba(248, 113, 113, 0.14); color: #f87171; }
+
+    .num { text-align: right; }
+    .right { text-align: right; }
+
+    .pager { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .pager button { background: rgba(15, 18, 28, 0.8); color: #e2e4ff; border: 1px solid rgba(255,255,255,0.12); padding: 0.45rem 0.9rem; border-radius: 0.6rem; cursor: pointer; }
+    .pager button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    #loading { transition: opacity 220ms ease; }
+    .loading { padding: 2.5rem; text-align: center; color: #7f8bb8; }
+    .empty { padding: 2.5rem; text-align: center; color: #7f8bb8; }
+
+    .chart-wrap { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; padding: 1rem; margin-top: 1rem; }
+    .chart-wrap canvas { max-height: 320px; }
+
+    @media (max-width: 720px) {
+      .header-inner { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" style="position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(13,15,24,0.85); color:#c8cce0; z-index:100;">Memuat data...</div>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <h1>Dashboard Reksadana</h1>
+        <p>Data dari Google Sheets (CSV)</p>
+      </div>
+      <div class="last-update">
+        <span id="update-time">Terakhir diperbarui: -</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="toolbar">
+      <h2>Ringkasan</h2>
+      <button id="refresh-btn" onclick="refreshData(true)">Refresh</button>
+    </div>
+
+    <div class="cards" id="cards">
+      <div class="card">
+        <div class="label">Total Data</div>
+        <div class="value" id="total-data">-</div>
+      </div>
+      <div class="card">
+        <div class="label">Reksadana Aktif</div>
+        <div class="value" id="active-count">-</div>
+        <div class="label" style="margin-top:0.3rem">Tanpa tanggal jual</div>
+      </div>
+      <div class="card">
+        <div class="label">Modal Reksadana Aktif</div>
+        <div class="value" id="active-modal">-</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Gain/Loss Realized</div>
+        <div class="value" id="total-realized">-</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Potensi Gain/Loss</div>
+        <div class="value" id="total-potential">-</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Data Reksadana</h3>
+        <div style="display:flex; gap:0.7rem; align-items:center; flex-wrap:wrap;">
+          <div class="legend">
+            <span><span class="dot active"></span>Aktif</span>
+            <span><span class="dot closed"></span>Tidak Aktif</span>
+          </div>
+          <input id="searchInput" class="search" placeholder="Cari reksadana..." oninput="onSearch()" />
+        </div>
+      </div>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Reksadana</th>
+              <th>Status</th>
+              <th class="num">NAV Modal</th>
+              <th class="num">NAV Today</th>
+              <th class="num">G/L %</th>
+              <th class="num">Unit</th>
+              <th class="num">Modal Awal</th>
+              <th class="num">Nilai Saat Ini</th>
+              <th class="num">Potensi G/L</th>
+              <th class="num">NAV Jual</th>
+              <th class="num">Nilai Jual</th>
+              <th class="num">Gain/Loss</th>
+              <th>Tgl Beli</th>
+              <th>Tgl Jual</th>
+              <th class="num">Hari</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+        <div id="empty" class="empty" style="display:none">Tidak ada data.</div>
+      </div>
+      <div class="pager">
+        <button id="prevBtn" onclick="changePage(-1)">← Sebelumnya</button>
+        <span id="pageInfo">Halaman 1 dari 1</span>
+        <button id="nextBtn" onclick="changePage(1)">Selanjutnya →</button>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </main>
+
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSRVMwBAHHQ_GuqEkMA71A7ejjRf0R4yz3jF7-FVLzVgQyqAqWDsrCtBfxIlBPlZAWIcyRWQ8_ZOzWm/pub?gid=1113901166&single=true&output=csv';
+    const PROXY_URL = 'https://api.allorigins.win/raw?url=';
+    const CACHE_KEY = 'rdreport.cache';
+    const CACHE_TTL_MS = 5 * 60 * 1000;
+
+    let rows = [];
+    let headers = [];
+    let filtered = [];
+    let page = 1;
+    const pageSize = 10;
+    let chart = null;
+    let query = '';
+
+    function hideLoading() {
+      const el = document.getElementById('loading');
+      if (!el) return;
+      el.style.opacity = '0';
+      setTimeout(() => { el.style.display = 'none'; }, 220);
+    }
+    function showLoading() {
+      const el = document.getElementById('loading');
+      if (!el) return;
+      el.style.display = 'flex';
+      el.style.opacity = '1';
+    }
+
+    function cacheGet() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        if (!obj || !obj.ts || !obj.data) return null;
+        if (Date.now() - obj.ts > CACHE_TTL_MS) return null;
+        return obj.data;
+      } catch (e) { return null; }
+    }
+    function cacheSet(data) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch (e) {}
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      const headersTrimmed = parseLine(lines[0]).map(h => h.trim());
+      const data = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseLine(lines[i]);
+        if (cols.length === headersTrimmed.length) {
+          const obj = {};
+          headersTrimmed.forEach((h, idx) => obj[h] = cols[idx].trim());
+          data.push(obj);
+        }
+      }
+      return { headers: headersTrimmed, rows: data };
+    }
+    function parseLine(line) {
+      const out = []; let cur = ''; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') inQ = !inQ; else if (ch === ',' && !inQ) { out.push(cur); cur = ''; } else cur += ch;
+      }
+      out.push(cur);
+      return out;
+    }
+
+    function num(v) {
+      const s = String(v ?? '').replace(/\./g, '').replace(',', '.');
+      const n = parseFloat(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function fmtRupiah(v) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(num(v)); }
+    function fmtPct(v) {
+      const n = num(v);
+      return (Number.isFinite(n) ? n.toFixed(2).replace('.', ',') + '%' : '-');
+    }
+    function fmtDate(v) {
+      const s = String(v ?? '');
+      const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+      if (!m) return s || '-';
+      const d = parseInt(m[1],10), mon = parseInt(m[2],10), y = m[3];
+      if (!Number.isFinite(d) || !Number.isFinite(mon)) return s;
+      const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+      return `${d} ${months[mon - 1]} ${y}`;
+    }
+    function rowStatus(r) {
+      const key = headers.find(h => new RegExp('\\b(tgl\\s+jual|tanggal\\s+jual)\\b', 'i').test(h));
+      if (!key) return 'aktif';
+      const s = String(r[key] ?? '').trim();
+      if (!s || s.toLowerCase() === '-') return 'aktif';
+      return 'tidak aktif';
+    }
+
+    async function refreshData(manual) {
+      const btn = document.getElementById('refresh-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const cached = cacheGet();
+        if (cached) {
+          headers = cached.headers;
+          rows = cached.rows;
+          applyFilter();
+          updateSummary();
+          render();
+          updateTime();
+        }
+
+        showLoading();
+        let txt = null;
+        try {
+          const res = await Promise.race([
+            fetch(SHEET_URL),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000))
+          ]);
+          if (res && res.ok) txt = await res.text();
+        } catch (e) {
+          try {
+            const res2 = await Promise.race([
+              fetch(PROXY_URL + encodeURIComponent(SHEET_URL)),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000))
+            ]);
+            if (res2 && res2.ok) txt = await res2.text();
+          } catch (e2) {}
+        }
+
+        if (!txt && cached) {
+          hideLoading();
+          if (btn) btn.disabled = false;
+          return;
+        }
+
+        let parsed;
+        try {
+          parsed = JSON.parse(txt);
+        } catch (e) {
+          parsed = parseCSV(txt);
+        }
+
+        headers = parsed.headers;
+        rows = parsed.rows;
+        cacheSet(parsed);
+
+        applyFilter();
+        updateSummary();
+        render();
+        updateTime();
+        if (manual && btn) { btn.textContent = 'Terselesai'; setTimeout(() => btn.textContent = 'Refresh', 800); }
+      } catch (e) {
+        console.error(e);
+        alert('Gagal memuat data: ' + e.message);
+      } finally {
+        hideLoading();
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function applyFilter() {
+      const q = (query || '').trim().toLowerCase();
+      if (!q) {
+        filtered = [...rows];
+      } else {
+        filtered = rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q)));
+      }
+      page = 1;
+    }
+
+    function updateSummary() {
+      document.getElementById('total-data').textContent = rows.length.toLocaleString('id-ID');
+      const aktif = rows.filter(r => rowStatus(r) === 'aktif');
+      document.getElementById('active-count').textContent = aktif.length.toLocaleString('id-ID');
+
+      const modalKey = headers.find(h => /^modal\s*awal$/i.test(h));
+      if (modalKey) {
+        const total = aktif.reduce((acc, r) => acc + num(r[modalKey]), 0);
+        document.getElementById('active-modal').textContent = fmtRupiah(total);
+      }
+
+      const realizedKey = headers.find(h => /^gain\/loss\s*realized$/i.test(h) || /^gl\s*realized$/i.test(h));
+      if (realizedKey) {
+        const totalRealized = rows.reduce((acc, r) => acc + num(r[realizedKey]), 0);
+        document.getElementById('total-realized').textContent = fmtRupiah(totalRealized);
+      }
+
+      const potentialKey = headers.find(h => /^potensi\s*gain\/loss$/i.test(h) || 'POTENSI GAIN/LOSS' === h.toUpperCase() || 'POTENSI GAIN/LOSS' === h.trim().toUpperCase());
+      if (potentialKey) {
+        const aktf = {aktif: true};
+        let sum = 0;
+        rows.forEach(r => {
+          if (rowStatus(r) === 'aktif') sum += num(r[potentialKey]);
+        });
+        document.getElementById('total-potential').textContent = fmtRupiah(sum);
+      }
+    }
+
+    function render() {
+      const tbody = document.getElementById('table-body');
+      const start = (page - 1) * pageSize;
+      const slice = filtered.slice(start, start + pageSize);
+      tbody.innerHTML = '';
+
+      const cols = {
+        nama: headers.findIndex(h => /^reksadana$/i.test(h)),
+        navModal: headers.findIndex(h => /^nav\s*modal$/i.test(h)),
+        navToday: headers.findIndex(h => /^nav\s*today$/i.test(h)),
+        glPct: headers.findIndex(h => /^g\/l\s*%$/i.test(h) || /^gl\s*%$/i.test(h)),
+        unit: headers.findIndex(h => /^unit$/i.test(h)),
+        modal: headers.findIndex(h => /^modal\s*awal$/i.test(h)),
+        nilai: headers.findIndex(h => /^nilai\s*saat\s*ini$/i.test(h)),
+        potensi: headers.findIndex(h => /^potensi\s*gain\/loss$/i.test(h) || /^potensi\s*gl$/i.test(h)),
+        navJual: headers.findIndex(h => /^nav\s*jual$/i.test(h)),
+        nilaiJual: headers.findIndex(h => /^nominal\s*jual$/i.test(h)),
+        gainLoss: headers.findIndex(h => /^gain\/loss\s*realized$/i.test(h) || /^gl\s*realized$/i.test(h)),
+        tglBeli: headers.findIndex(h => /^tanggal\s*beli$/i.test(h)),
+        tglJual: headers.findIndex(h => /^tanggal\s*jual$/i.test(h)),
+        hari: headers.findIndex(h => /^jumlah\s*hari$/i.test(h))
+      };
+
+      slice.forEach(r => {
+        const tr = document.createElement('tr');
+        const status = rowStatus(r);
+        const statusBadge = status === 'aktif'
+          ? `<span class="badge badge-aktif"><span class="dot active"></span>Aktif</span>`
+          : `<span class="badge badge-tidak-aktif"><span class="dot closed"></span>Tidak Aktif</span>`;
+
+        const td = (i, cls, html) => { const t = document.createElement('td'); if (cls) t.className = cls; t.innerHTML = html; return t; };
+
+        tr.appendChild(td(cols.nama, '', esc(r[headers[cols.nama]] ?? '-')));
+        tr.appendChild(td(-1, '', statusBadge));
+        tr.appendChild(td(cols.navModal, 'num', fmtRupiah(r[headers[cols.navModal]] ?? '')));
+        tr.appendChild(td(cols.navToday, 'num', fmtRupiah(r[headers[cols.navToday]] ?? '')));
+        tr.appendChild(td(cols.glPct >= 0 ? cols.glPct : cols.navModal + 2, 'num', fmtPct(r[headers[cols.glPct]] ?? '')));
+        tr.appendChild(td(cols.unit, '', esc(r[headers[cols.unit]] ?? '-')));
+        tr.appendChild(td(cols.modal, 'num', fmtRupiah(r[headers[cols.modal]] ?? '')));
+        tr.appendChild(td(cols.nilai, 'num', fmtRupiah(r[headers[cols.nilai]] ?? '')));
+        tr.appendChild(td(cols.potensi >= 0 ? cols.potensi : cols.nilai + 1, 'num', fmtRupiah(r[headers[cols.potensi]] ?? '')));
+        tr.appendChild(td(cols.navJual, 'num', fmtRupiah(r[headers[cols.navJual]] ?? '')));
+        tr.appendChild(td(cols.nilaiJual, 'num', fmtRupiah(r[headers[cols.nilaiJual]] ?? '')));
+        tr.appendChild(td(cols.gainLoss, 'num', fmtRupiah(r[headers[cols.gainLoss]] ?? '')));
+        tr.appendChild(td(cols.tglBeli, '', fmtDate(r[headers[cols.tglBeli]] ?? '')));
+        tr.appendChild(td(cols.tglJual, '', fmtDate(r[headers[cols.tglJual]] ?? '')));
+        tr.appendChild(td(cols.hari, 'num', esc(r[headers[cols.hari]] ?? '-')));
+
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('empty').style.display = slice.length ? 'none' : 'block';
+      document.getElementById('pageInfo').textContent = `Halaman ${page} dari ${Math.max(1, Math.ceil(filtered.length / pageSize))}`;
+      document.getElementById('prevBtn').disabled = page <= 1;
+      document.getElementById('nextBtn').disabled = start + pageSize >= filtered.length;
+    }
+
+    function esc(s) { return String(s ?? '') .replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+
+    function changePage(d) { page += d; render(); }
+    function onSearch() { query = document.getElementById('searchInput').value; applyFilter(); render(); }
+
+    function updateTime() {
+      const now = new Date();
+      const str = now.toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      document.getElementById('update-time').textContent = 'Terakhir diperbarui: ' + str;
+    }
+
+    async function init() {
+      await refreshData(false);
+    }
+
+    init();
+    setInterval(() => refreshData(false), 300000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Portofolio Reksadana</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --ink: #101828;
+      --muted: #5a687d;
+      --accent: #4f6ef5;
+      --accent-2: #7c5ffc;
+      --success: #22b07d;
+      --danger: #e04f5f;
+      --border: rgba(18, 24, 38, 0.06);
+      --shadow: 0 22px 70px rgba(18, 24, 38, 0.10), 0 6px 20px rgba(18, 24, 38, 0.06);
+      --shadow-sm: 0 8px 24px rgba(18, 24, 38, 0.07);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --ease: cubic-bezier(.4, 0, .2, 1);
+      --bounce: cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(125deg, rgba(79,110,245,0.07), rgba(124,95,252,0.04));
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding-top: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 30px rgba(79,110,245,0.28);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.4px;
+    }
+
+    .sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .dot.ok { background: var(--success); box-shadow: 0 0 0 6px rgba(34,176,125,0.12); }
+    .dot.err { background: var(--danger); }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow .35s var(--ease);
+    }
+
+    .panel:hover { box-shadow: var(--shadow); }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 22px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      padding-inline: 18px;
+      padding-block: 11px;
+      border-radius: 14px;
+      font-size: 14px;
+      transition: transform .25s var(--bounce), box-shadow .25s var(--ease), filter .2s linear;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 14px 34px rgba(79,110,245,.26);
+    }
+
+    .btn:hover { filter: brightness(1.05); transform: translateY(-2px); }
+    .btn:disabled, .btn[disabled] { filter: grayscale(.3); opacity: .9; cursor: not-allowed; transform: none; }
+
+    .ghost {
+      background: var(--panel);
+      color: var(--ink);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .search {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #f5f7fb;
+      color: var(--ink);
+      font-size: 14px;
+      width: 280px;
+      transition: all .25s var(--ease);
+    }
+
+    .search:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 6px rgba(79,110,245,.08);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      padding: 18px 16px 22px;
+      max-height: 62vh;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #fbfbfd;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12.5px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+      transition: background .2s linear;
+    }
+
+    tbody tr {
+      transition: transform .22s var(--bounce), background .2s linear;
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background: #f7f8fc;
+      transform: scale(1.003);
+    }
+
+    .empty {
+      padding: 54px 22px;
+      text-align: center;
+      color: var(--muted);
+      display: none;
+    }
+
+    .empty.show { display: block; }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: linear-gradient(180deg, rgba(18,24,38,.32), rgba(18,24,38,.55));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      animation: fadeIn .2s ease;
+    }
+
+    .modal-bg.hidden { display: none; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .sheet {
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      animation: pop .32s var(--bounce);
+      overflow: hidden;
+    }
+
+    @keyframes pop { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sheet-title {
+      font-size: 17px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-grad {
+      width: 36px; height: 36px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center;
+      color: #fff; font-weight: 800; font-size: 14px;
+    }
+
+    .sheet-body { padding: 18px 22px; }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      background: #f7f8fc;
+      color: var(--ink);
+      transition: all .2s var(--ease);
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 6px rgba(79,110,245,.08);
+    }
+
+    .sheet-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 22px 18px;
+    }
+
+    @media (max-width: 680px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .search { width: 100%; }
+      .toolbar { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="icon">R</div>
+        <div>
+          <h1>Portofolio Reksadana</h1>
+          <p class="sub">Versi simpel: nama reksadana + NAV.</p>
+        </div>
+      </div>
+      <div class="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">Sedang sinkron...</span>
+      </div>
+    </header>
+
+    <div class="panel">
+      <div class="toolbar">
+        <input class="search" id="search" placeholder="Cari nama reksadana..." autocomplete="off" />
+        <button class="btn" id="addBtn">+ Tambah</button>
+      </div>
+      <div class="table-wrap">
+        <table id="table">
+          <thead><tr id="thead"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div class="empty" id="empty">Belum ada data.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg hidden" id="formBg">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title"><span class="icon-grad">+</span>Tambah Reksadana</div>
+        <button class="btn ghost" id="closeForm" style="padding:8px 12px; font-size:13px;">Tutup</button>
+      </div>
+      <div class="sheet-body">
+        <div class="field">
+          <label>Nama Reksadana</label>
+          <input id="fNama" placeholder="Contoh: Reksa Dana Pasar Uang ABC" />
+        </div>
+        <div class="field">
+          <label>NAV Reksadana</label>
+          <input id="fNav" placeholder="Contoh: 1250" inputmode="decimal" />
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn ghost" id="cancelForm" style="padding:10px 14px; font-size:13px;">Batal</button>
+        <button class="btn" id="submitForm">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APP_SCRIPT_URL = window.location.origin + window.location.pathname;
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+    const PIN = '123456';
+
+    function clean(x) {
+      const s = String(x ?? '').trim();
+      return (!s || s === '#N/A' || s === '-') ? '' : s;
+    }
+
+    function renderTable(filter = '') {
+      const q = String(filter).trim().toLowerCase();
+      $('#thead').innerHTML = '<th>Reksadana</th><th>NAV</th>';
+      const filtered = q ? data.filter((row) => String(row[0] ?? '').toLowerCase().includes(q)) : data;
+      if (!filtered.length) {
+        $('#tbody').innerHTML = '';
+        document.getElementById('empty').classList.add('show');
+        return;
+      }
+      document.getElementById('empty').classList.remove('show');
+      $('#tbody').innerHTML = filtered.map((row, idx) => {
+        const realIdx = q ? data.indexOf(row) : idx;
+        return `<tr>
+          <td>${escapeHtml(row[0])}</td>
+          <td>${escapeHtml(row[1])}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) { return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]); }
+
+    async function api(body) {
+      const r = await fetch(APP_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const text = await r.text();
+      try { return JSON.parse(text); } catch (e) { return { success: false, raw: text }; }
+    }
+
+    async function loadData() {
+      const j = await api({ action: 'read', pin: PIN });
+      if (!j.success) {
+        document.getElementById('statusDot').className = 'dot err';
+        $('#statusText').textContent = String(j.message || j.raw || 'Gagal memuat').slice(0, 120);
+        return;
+      }
+      data = j.rows || [];
+      document.getElementById('statusDot').className = 'dot ok';
+      $('#statusText').textContent = 'Tersinkron • ' + new Date().toLocaleString('id-ID');
+      renderTable($('#search').value);
+    }
+
+    function openAdd() {
+      $('#fNama').value = '';
+      $('#fNav').value = '';
+      $('#formBg').classList.remove('hidden');
+      setTimeout(() => $('#fNama').focus(), 50);
+    }
+
+    function closeAdd() { $('#formBg').classList.add('hidden'); }
+
+    document.getElementById('addBtn').onclick = openAdd;
+    document.getElementById('closeForm').onclick = closeAdd;
+    document.getElementById('cancelForm').onclick = closeAdd;
+    document.getElementById('formBg').onclick = (e) => { if (e.target.id === 'formBg') closeAdd(); };
+
+    document.getElementById('submitForm').onclick = async () => {
+      const nama = $('#fNama').value.trim();
+      const nav = $('#fNav').value.trim();
+      if (!nama) { alert('Nama reksadana wajib diisi.'); return; }
+      const j = await api({
+        action: 'add',
+        pin: PIN,
+        payload: { nama_reksadana: nama, nav_reksadana: nav },
+      });
+      if (j.success) { closeAdd(); loadData(); }
+      else alert(j.message || j.raw || 'Gagal menambah data');
+    };
+
+    $('#search').oninput = (e) => renderTable(e.target.value);
+
+    let data = [];
+    loadData();
+  </script>
+</body>
+</html>
