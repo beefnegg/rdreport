@@ -169,6 +169,16 @@
       </div>
     </div>
 
+    <div id="modal" style="position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(13,15,24,0.85);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem" onclick="if(event.target===this)closeModal()">
+      <div style="background:linear-gradient(135deg,#131529,#0d0f18);border:1px solid rgba(255,255,255,0.08);border-radius:1.2rem;width:min(720px,95vw);max-height:90vh;overflow:auto;padding:1.25rem;box-shadow:0 25px 60px rgba(0,0,0,0.4)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+          <h3 style="font-size:1.05rem">Detail Reksadana</h3>
+          <button onclick="closeModal()" style="background:rgba(255,255,255,0.08);color:#e2e4ff;border:1px solid rgba(255,255,255,0.12);padding:.4rem .7rem;border-radius:.6rem;cursor:pointer">Tutup</button>
+        </div>
+<div id="modal-body" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.6rem"></div>
+      </div>
+    </div>
+
     <div class="chart-wrap">
       <canvas id="chart"></canvas>
     </div>
@@ -392,6 +402,9 @@
 
       slice.forEach(r => {
         const tr = document.createElement('tr');
+        tr.addEventListener('click', function () { openModal(r); });
+        tr.style.cursor = 'pointer';
+        tr.title = 'Lihat detail';
         const status = rowStatus(r);
         const statusBadge = status === 'aktif'
           ? `<span class="badge badge-aktif"><span class="dot active"></span>Aktif</span>`
@@ -428,6 +441,30 @@
 
     function changePage(d) { page += d; render(); }
     function onSearch() { query = document.getElementById('searchInput').value; applyFilter(); render(); }
+
+    function openModal(r) {
+      const wrap = document.getElementById('modal-body');
+      wrap.innerHTML = '';
+      headers.forEach(h => {
+        const raw = r[h];
+        if (raw == null) return;
+        const display = /modal\s*awal|nav\s*modal|nilai\s*saat\s*ini|modal\s*jual\?|nilai\s*jual|potensi\s*gain|gain\/loss/i.test(h)
+          ? fmtRupiah(raw)
+          : /g\/l\s*%/i.test(h)
+            ? fmtPct(raw)
+            : /tanggal/i.test(h)
+              ? fmtDate(raw)
+              : esc(raw);
+        const card = document.createElement('div');
+        card.style.cssText = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:.9rem;padding:.6rem .8rem';
+        card.innerHTML = '<div style="color:#7f8bb8;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em">' + esc(h) + '</div><div style="margin-top:.2rem;word-break:break-word">' + display + '</div>';
+        wrap.appendChild(card);
+      });
+      document.getElementById('modal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
 
     function updateTime() {
       const now = new Date();
