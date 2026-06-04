@@ -46,7 +46,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 0.5rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .brand h1 {
       font-size: clamp(0.78rem, 1.7vw, 0.98rem);
@@ -316,7 +316,7 @@
       .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; margin-left: auto; margin-right: auto; }
     }
     @media (max-width: 560px) {
-      .header-inner { flex-direction: column; align-items: flex-start; gap: 0.7rem; }
+      .header-inner { flex-direction: row; align-items: center; gap: 0.5rem; }
       .search { width: 100%; }
       .toolbar { flex-direction: column; align-items: stretch; }
       .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 360px; }
@@ -335,7 +335,7 @@
         <h1>Reksadana</h1>
       </div>
       <div class="last-update">
-        <span id="update-time">Diperbaharui: -</span>
+        <span id="update-time">🕒 -</span>
         <button id="refresh-btn" class="refresh" onclick="refreshData(true)">Refresh</button>
       </div>
     </div>
@@ -722,7 +722,7 @@
     function updateTime() {
       const now = new Date();
       const str = now.toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      document.getElementById('update-time').textContent = 'Diperbaharui: ' + str;
+      document.getElementById('update-time').textContent = '🕒 ' + str;
     }
 
     async function init() {
