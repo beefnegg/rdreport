@@ -111,15 +111,17 @@
       color: #a0a4c0;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      font-weight: 500;
+      font-weight: 400;
       line-height: 1.1;
+      font-family: inherit;
     }
     .card .value {
       font-size: clamp(0.2rem, 0.4vw, 0.3rem);
-      font-weight: 800;
+      font-weight: 400;
       margin-top: 0.18rem;
       color: #f8faff;
       line-height: 1.1;
+      font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     }
     .card .sub {
       margin-top: 0.22rem;
@@ -424,7 +426,7 @@
     let headers = [];
     let filtered = [];
     let page = 1;
-    const pageSize = 10;
+    const pageSize = 5;
     let chart = null;
     let query = '';
 
