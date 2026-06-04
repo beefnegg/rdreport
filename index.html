@@ -590,7 +590,7 @@
         rows.forEach(r => {
           if (rowStatus(r) === 'aktif') sum += num(r[potentialKey]);
         });
-        document.getElementById('total-potential').innerHTML = fmtRupiah(sum);
+        document.getElementById('total-potential').innerHTML = fmtRupiahNeg(sum);
       }
     }
 
@@ -637,7 +637,7 @@
         tr.appendChild(td(cols.unit, '', esc(r[headers[cols.unit]] ?? '-')));
         tr.appendChild(td(cols.modal, 'num', fmtRupiah(r[headers[cols.modal]] ?? '')));
         tr.appendChild(td(cols.nilai, 'num', fmtRupiah(r[headers[cols.nilai]] ?? '')));
-        tr.appendChild(td(cols.potensi >= 0 ? cols.potensi : cols.nilai + 1, 'num', fmtRupiah(r[headers[cols.potensi]] ?? '')));
+        tr.appendChild(td(cols.potensi >= 0 ? cols.potensi : cols.nilai + 1, 'num', fmtRupiahNeg(r[headers[cols.potensi]] ?? '')));
         tr.appendChild(td(cols.navJual, 'num', fmtRupiah(r[headers[cols.navJual]] ?? '')));
         tr.appendChild(td(cols.nilaiJual, 'num', fmtRupiah(r[headers[cols.nilaiJual]] ?? '')));
         tr.appendChild(td(cols.gainLoss, 'num', fmtRupiahNeg(r[headers[cols.gainLoss]] ?? '')));
