@@ -38,7 +38,8 @@
     .search:focus { border-color: rgba(99, 102, 241, 0.6); }
 
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.2rem; }
-    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(18px); border-radius: 1.5rem; padding: 1.2rem; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(18px); border-radius: 1.5rem; padding: 1.2rem; transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; will-change: transform; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 25px 50px rgba(0,0,0,0.35); border-color: rgba(255,255,255,0.14); }
     .card .label { font-size: 0.75rem; color: #7f8bb8; text-transform: uppercase; letter-spacing: 0.08em; }
     .card .value { font-size: 1.6rem; font-weight: 800; margin-top: 0.25rem; }
 
@@ -55,7 +56,13 @@
     table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
     thead th { padding: 0.9rem 1rem; font-size: 0.75rem; color: #7f8bb8; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; background: rgba(15, 18, 28, 0.92); border-bottom: 1px solid rgba(255,255,255,0.08); }
     tbody td { padding: 0.85rem 1rem; font-size: 0.92rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    tbody tr:hover { background: rgba(255,255,255,0.05); }
+    tbody tr {
+  transition: background 0.22s ease, transform 0.22s ease;
+  will-change: transform, background;
+}
+tbody tr:hover {
+  transform: translateX(4px);
+}
 
     .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
     .badge-aktif { background: rgba(52, 211, 153, 0.14); color: #34d399; }
@@ -63,17 +70,21 @@
 
     .num { text-align: right; }
     .right { text-align: right; }
+    .num.negative { color: #f87171; }
+    .neg { color: #f87171; }
 
     .pager { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1rem; border-top: 1px solid rgba(255,255,255,0.08); }
     .pager button { background: rgba(15, 18, 28, 0.8); color: #e2e4ff; border: 1px solid rgba(255,255,255,0.12); padding: 0.45rem 0.9rem; border-radius: 0.6rem; cursor: pointer; }
     .pager button:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    #loading { transition: opacity 220ms ease; }
+    #loading {
+  transition: opacity 220ms ease;
+}
     .loading { padding: 2.5rem; text-align: center; color: #7f8bb8; }
     .empty { padding: 2.5rem; text-align: center; color: #7f8bb8; }
 
     .chart-wrap { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 1.5rem; padding: 1rem; margin-top: 1rem; }
-    .chart-wrap canvas { max-height: 320px; }
+    .chart-wrap canvas { max-height: 320px; transition: opacity 0.4s ease; }
 
     @media (max-width: 720px) {
       .header-inner { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
@@ -254,11 +265,18 @@
       const n = parseFloat(s);
       return Number.isFinite(n) ? n : 0;
     }
+    function maybeNeg(text, value) {
+      const n = num(value);
+      if (!Number.isFinite(n) || n >= 0) return esc(text);
+      return '<span class="neg">' + esc(text) + '</span>';
+    }
     function fmtRupiah(v) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(num(v)); }
+    function fmtRupiahNeg(v) { return maybeNeg('Rp ' + new Intl.NumberFormat('id-ID').format(num(v)), v); }
     function fmtPct(v) {
       const n = num(v);
       return (Number.isFinite(n) ? n.toFixed(2).replace('.', ',') + '%' : '-');
     }
+    function fmtPctNeg(v) { return maybeNeg(fmtPct(v), v); }
     function fmtDate(v) {
       const s = String(v ?? '');
       const m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
@@ -357,13 +375,13 @@
       const modalKey = headers.find(h => /^modal\s*awal$/i.test(h));
       if (modalKey) {
         const total = aktif.reduce((acc, r) => acc + num(r[modalKey]), 0);
-        document.getElementById('active-modal').textContent = fmtRupiah(total);
+        document.getElementById('active-modal').innerHTML = fmtRupiah(total);
       }
 
       const realizedKey = headers.find(h => /^gain\/loss\s*realized$/i.test(h) || /^gl\s*realized$/i.test(h));
       if (realizedKey) {
         const totalRealized = rows.reduce((acc, r) => acc + num(r[realizedKey]), 0);
-        document.getElementById('total-realized').textContent = fmtRupiah(totalRealized);
+        document.getElementById('total-realized').innerHTML = fmtRupiahNeg(totalRealized);
       }
 
       const potentialKey = headers.find(h => /^potensi\s*gain\/loss$/i.test(h) || 'POTENSI GAIN/LOSS' === h.toUpperCase() || 'POTENSI GAIN/LOSS' === h.trim().toUpperCase());
@@ -373,7 +391,7 @@
         rows.forEach(r => {
           if (rowStatus(r) === 'aktif') sum += num(r[potentialKey]);
         });
-        document.getElementById('total-potential').textContent = fmtRupiah(sum);
+        document.getElementById('total-potential').innerHTML = fmtRupiah(sum);
       }
     }
 
@@ -477,7 +495,6 @@
     }
 
     init();
-    setInterval(() => refreshData(false), 300000);
   </script>
 </body>
 </html>
