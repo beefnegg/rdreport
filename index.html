@@ -63,6 +63,10 @@
     .search::placeholder { color: #7f8bb8; }
 
     .cards {
+      position: sticky;
+      top: 90px;
+      z-index: 9;
+      background: rgba(18, 22, 36, 0.95);
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 1rem;
@@ -315,13 +319,8 @@
 
     <div class="cards" id="cards">
       <div class="card">
-        <div class="label">Total Data</div>
-        <div class="value" id="total-data">-</div>
-      </div>
-      <div class="card">
         <div class="label">Reksadana Aktif</div>
         <div class="value" id="active-count">-</div>
-        <div class="sub">Tanpa tanggal jual</div>
       </div>
       <div class="card">
         <div class="label">Modal Reksadana Aktif</div>
@@ -568,7 +567,6 @@
     }
 
     function updateSummary() {
-      document.getElementById('total-data').textContent = rows.length.toLocaleString('id-ID');
       const aktif = rows.filter(r => rowStatus(r) === 'aktif');
       document.getElementById('active-count').textContent = aktif.length.toLocaleString('id-ID');
 
