@@ -666,12 +666,12 @@
         const raw = r[h];
         if (raw == null) return;
         const display = /modal\s*awal|nav\s*modal|nilai\s*saat\s*ini|modal\s*jual\?|nilai\s*jual|potensi\s*gain|gain\/loss/i.test(h)
-          ? fmtRupiah(raw)
-          : /g\/l\s*%/i.test(h)
-            ? fmtPct(raw)
-            : /tanggal/i.test(h)
-              ? fmtDate(raw)
-              : esc(raw);
+            ? fmtRupiahNeg(raw)
+            : /g\/l\s*%/i.test(h)
+              ? fmtPctNeg(raw)
+              : /tanggal/i.test(h)
+                ? fmtDate(raw)
+                : esc(raw);
         const card = document.createElement('div');
         card.className = 'modal-item';
         card.innerHTML = '<div class="modal-key">' + esc(h) + '</div><div class="modal-val">' + display + '</div>';
